@@ -12,9 +12,11 @@ import os.path as path
 from PIL import Image, ImageDraw
 
 CUBE_WIDTH = 0.8
+TEXTURE_WIDTH = 128
 
 def genVertexLinesWithPos(pos, ci, f_out, n):
     assert(ci >=0 and ci < 100)
+    tex_step = 1.0 / TEXTURE_WIDTH
     vertex_template = [
         0.500000,  0.500000,  0.500000, 
         -0.500000,  0.500000,  0.500000, 
@@ -44,7 +46,7 @@ def genVertexLinesWithPos(pos, ci, f_out, n):
         f_out.write('''v %s %s %s\n''' % (pos[0] + CUBE_WIDTH * vertex_template[3*i],
                                           pos[1] + CUBE_WIDTH * vertex_template[3*i + 1],
                                           pos[2] + CUBE_WIDTH * vertex_template[3*i + 2]))
-    f_out.write('''vt %s %s\n''' % (0.01*ci + 0.005, 0.0 + 0.005))
+    f_out.write('''vt %s %s\n''' % (tex_step * (ci + 0.5), tex_step * 0.5))
     
     index_template = [0,   1,   2,   0,   2,   3,   4,   5,   6,   6,   5,   7,
         8,   9,  10,   8,  10,  11,  12,  13,  14,  12,  14,  15,
@@ -125,15 +127,15 @@ def genColorMap(fn,fn_mapname):
         data_in += _line
     jobj = json.loads(data_in)
     
-    img = Image.new("RGBA", (100,100), color=(128,128,128,128))
+    img = Image.new("RGBA", (TEXTURE_WIDTH,TEXTURE_WIDTH), color=(256,0,0,256))
     draw = ImageDraw.Draw(img)
 #     draw.ellipse((25,25,75,75), fill=(255,0,0,100))
     for _meta in jobj["list"]:
         x = _meta["id"]
         color = _meta["color"]
-        assert( x >=0 and x < 100)
+        assert( x >=0 and x < TEXTURE_WIDTH)
         #GL UV coordinate from left-bottom, so be 99.
-        draw.point((x,99), fill=(int(256*color[0]),
+        draw.point((x,TEXTURE_WIDTH - 1), fill=(int(256*color[0]),
                                 int(256*color[1]),
                                 int(256*color[2]),
                                 int(256*color[3])))
