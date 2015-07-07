@@ -11,7 +11,7 @@ import json
 import os.path as path
 from PIL import Image, ImageDraw
 
-CUBE_WIDTH = 1.0
+CUBE_WIDTH = 1.0000
 TEXTURE_WIDTH = 128
 
 def genVertexLinesWithPos(pos, ci, f_out, n):
@@ -22,39 +22,79 @@ def genVertexLinesWithPos(pos, ci, f_out, n):
         -0.500000,  0.500000,  0.500000, 
         -0.500000, -0.500000,  0.500000, 
         0.500000, -0.500000,  0.500000, 
+        
         0.500000,  0.500000,  0.500000,  
         0.500000,  0.500000, -0.500000, 
-        -0.500000,  0.500000,  0.500000, 
         -0.500000,  0.500000, -0.500000, 
+        -0.500000,  0.500000,  0.500000, 
+        
         0.500000, -0.500000, -0.500000, 
         -0.500000, -0.500000, -0.500000,
         -0.500000,  0.500000, -0.500000,
         0.500000,  0.500000, -0.500000, 
+        
         0.500000, -0.500000,  0.500000, 
         -0.500000, -0.500000,  0.500000, 
         -0.500000, -0.500000, -0.500000, 
         0.500000, -0.500000, -0.500000, 
+        
         0.500000,  0.500000,  0.500000, 
         0.500000, -0.500000,  0.500000, 
-        0.500000,  0.500000, -0.500000, 
         0.500000, -0.500000, -0.500000, 
+        0.500000,  0.500000, -0.500000, 
+        
         -0.500000,  0.500000,  0.500000, 
+        -0.500000,  0.500000, -0.500000,
         -0.500000, -0.500000, -0.500000, 
-        -0.500000, -0.500000,  0.500000, 
-        -0.500000,  0.500000, -0.500000]
+        -0.500000, -0.500000,  0.500000,
+        
+        0.000000, 0.000000, 0.500000,
+        0.000000, 0.500000, 0.000000,
+        0.000000, 0.000000, -0.500000,
+        0.000000, -0.500000, 0.000000,
+        0.500000, 0.000000, 0.000000,
+        -0.500000, 0.000000, 0.000000
+         ]
     for i in xrange(len(vertex_template)/3):
         f_out.write('''v %s %s %s\n''' % (pos[0] + CUBE_WIDTH * vertex_template[3*i],
                                           pos[1] + CUBE_WIDTH * vertex_template[3*i + 1],
                                           pos[2] + CUBE_WIDTH * vertex_template[3*i + 2]))
-    f_out.write('''vt %s %s\n''' % (tex_step * (ci + 0.5), tex_step * 0.5))
+    f_out.write('''vt %s %s\n''' % (tex_step * (ci + 0.5), 1.0))
+    f_out.write('''vt %s %s\n''' % (tex_step * (ci + 0.5), 0.0))
     
-    index_template = [0,   1,   2,   0,   2,   3,   4,   5,   6,   6,   5,   7,
-        8,   9,  10,   8,  10,  11,  12,  13,  14,  12,  14,  15,
-        16,  17,  18,  17,  19,  18,  20,  21,  22,  21,  20,  23]
+    index_template = [24, 0, 1,
+                      24, 1, 2,
+                      24, 2, 3,
+                      24, 3, 0,
+                      
+                      25, 4, 5,
+                      25, 5, 6,
+                      25, 6, 7,
+                      25, 7, 4,
+                      
+                      26, 8, 9,
+                      26, 9, 10,
+                      26, 10, 11,
+                      26, 11, 8,
+                      
+                      27, 12, 13,
+                      27, 13, 14,
+                      27, 14, 15,
+                      27, 15, 12,
+                      
+                      28, 16, 17,
+                      28, 17, 18,
+                      28, 18, 19,
+                      28, 19, 16,
+                      
+                      29, 20, 21,
+                      29, 21, 22,
+                      29, 22, 23,
+                      29, 23, 20]
     for i in xrange(len(index_template)/3):
-        f_out.write('''f %s/%s %s/%s %s/%s\n''' % (n*24+1 +index_template[3*i], n+1, 
-                                                   n*24+1 +index_template[3*i + 1], n+1,
-                                                   n*24+1 +index_template[3*i + 2], n+1));
+        f_out.write('''f %s/%s %s/%s %s/%s\n''' % (n*30+1 +index_template[3*i], 2*n+1, 
+                                                   n*30+1 +index_template[3*i + 1], 2*n+2,
+                                                   n*30+1 +index_template[3*i + 2], 2*n+2));
                                         
 MLT_TEMPLATE = '''newmtl material0
 Ka 1.000000 1.000000 1.000000
@@ -134,11 +174,12 @@ def genColorMap(fn,fn_mapname):
         x = _meta["id"]
         color = _meta["color"]
         assert( x >=0 and x < TEXTURE_WIDTH)
-        #GL UV coordinate from left-bottom, so be 99.
-        draw.point((x,TEXTURE_WIDTH - 1), fill=(int(256*color[0]),
-                                int(256*color[1]),
-                                int(256*color[2]),
-                                int(256*color[3])))
+        #GL UV coordinate from left-bottom.
+        for _y in xrange(TEXTURE_WIDTH):
+            draw.point((x, _y), fill=(int(256*color[0]),
+                                      int(256*color[1]),
+                                      int(256*color[2]),
+                                      int(256*color[3])))
     img.save(fn_mapname, 'PNG')
 
 def cube2obj(fn):
