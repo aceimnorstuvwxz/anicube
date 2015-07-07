@@ -11,7 +11,7 @@ import json
 import os.path as path
 from PIL import Image, ImageDraw
 
-CUBE_WIDTH = 0.8
+CUBE_WIDTH = 1.0
 TEXTURE_WIDTH = 128
 
 def genVertexLinesWithPos(pos, ci, f_out, n):
@@ -155,7 +155,10 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         fn = sys.argv[1]
         cube2obj(fn)
+    elif len(sys.argv) == 3:
+        CUBE_WIDTH = float(sys.argv[1])
+        cube2obj(sys.argv[2])
     else:
-        print "Usage:\n    cube2obj xxx.cube"
+        print "Usage:\n  cube2obj  [CUBE_WIDTH]  xxx.cube"
     pass
     
