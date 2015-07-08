@@ -62,6 +62,17 @@ def genVertexLinesWithPos(pos, ci, f_out, n):
     f_out.write('''vt %s %s\n''' % (tex_step * (ci + 0.5), 1.0))
     f_out.write('''vt %s %s\n''' % (tex_step * (ci + 0.5), 0.0))
     
+    normal_template = [        0.000000, 0.000000, 0.500000,
+        0.000000, 0.500000, 0.000000,
+        0.000000, 0.000000, -0.500000,
+        0.000000, -0.500000, 0.000000,
+        0.500000, 0.000000, 0.000000,
+        -0.500000, 0.000000, 0.000000]
+    for i in xrange(len(normal_template)/3):
+        f_out.write('''vn %s %s %s\n''' % (normal_template[3*i],
+                                           normal_template[3*i + 1],
+                                           normal_template[3*i + 2]))
+    
     index_template = [24, 0, 1,
                       24, 1, 2,
                       24, 2, 3,
@@ -92,9 +103,9 @@ def genVertexLinesWithPos(pos, ci, f_out, n):
                       29, 22, 23,
                       29, 23, 20]
     for i in xrange(len(index_template)/3):
-        f_out.write('''f %s/%s %s/%s %s/%s\n''' % (n*30+1 +index_template[3*i], 2*n+1, 
-                                                   n*30+1 +index_template[3*i + 1], 2*n+2,
-                                                   n*30+1 +index_template[3*i + 2], 2*n+2));
+        f_out.write('''f %s/%s/%s %s/%s/%s %s/%s/%s\n''' % (n*30+1 +index_template[3*i], 2*n+1, i/4+1, 
+                                                   n*30+1 +index_template[3*i + 1], 2*n+2, i/4+1,
+                                                   n*30+1 +index_template[3*i + 2], 2*n+2, i/4+1));
                                         
 MLT_TEMPLATE = '''newmtl material0
 Ka 1.000000 1.000000 1.000000
